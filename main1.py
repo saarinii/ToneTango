@@ -1,30 +1,43 @@
-import pandas as pd
-import numpy as np
+import pyaudio
 
-import os
-import sys
+def record_audio(chunk=1024, format=pyaudio.paInt16, channels=1, rate=44100, record_seconds=5):
 
-# librosa is a Python library for analyzing audio and music. It can be used to extract the data from the audio files we will see it later.
-import librosa
-import librosa.display
-import seaborn as sns
-import matplotlib.pyplot as plt
+  """
+  Records audio from the microphone for a specified duration.
 
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.metrics import confusion_matrix, classification_report
-from sklearn.model_selection import train_test_split
+  Args:
+      chunk: The number of frames to read at a time (default 1024).
+      format: The audio format (default pyaudio.paInt16).
+      channels: The number of audio channels (default 1 for mono).
+      rate: The sampling rate of the audio (default 44100 Hz).
+      record_seconds: The duration of the recording in seconds (default 5).
 
-# to play the audio files
-from IPython.display import Audio
+  Returns:
+      A list of audio frames recorded from the microphone.
+  """
 
-import keras
-from keras.callbacks import ReduceLROnPlateau
-from keras.models import Sequential
-from keras.layers import Dense, Conv1D, MaxPooling1D, Flatten, Dropout, BatchNormalization
-from keras.utils import np_utils, to_categorical
-from keras.callbacks import ModelCheckpoint
+  p = pyaudio.PyAudio()
 
-import warnings
-if not sys.warnoptions:
-    warnings.simplefilter("ignore")
-warnings.filterwarnings("ignore", category=DeprecationWarning) 
+  stream = p.open(format=format,
+                  channels=channels,
+                  rate=rate,
+                  input=True,
+                  frames_per_buffer=chunk)
+
+  frames = []
+
+  print("Recording...")
+
+  # Loop for the specified recording duration
+  for _ in range(int(rate / chunk * record_seconds)):
+    data = stream.read(chunk)
+    frames.append(data)
+
+  print("Finished recording.")
+
+  # Stop the stream and close PyAudio
+  stream.stop_stream()
+  stream.close()
+  p.terminate()
+
+  return frames
