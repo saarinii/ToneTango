@@ -1,43 +1,30 @@
-import pyaudio
-
-def record_audio(chunk=1024, format=pyaudio.paInt16, channels=1, rate=44100, record_seconds=5):
-
-  """
-  Records audio from the microphone for a specified duration.
+import sounddevice as sd
+def record_audio(duration=5, fs=44100):
+  """Records audio from the microphone for a specified duration.
 
   Args:
-      chunk: The number of frames to read at a time (default 1024).
-      format: The audio format (default pyaudio.paInt16).
-      channels: The number of audio channels (default 1 for mono).
-      rate: The sampling rate of the audio (default 44100 Hz).
-      record_seconds: The duration of the recording in seconds (default 5).
+      duration: The duration of the recording in seconds (default 5).
+      fs: The sampling rate of the audio (default 44100 Hz).
 
   Returns:
-      A list of audio frames recorded from the microphone.
+      A NumPy array of the recorded audio data.
   """
+  # This will record audio for 'duration' seconds and return it as a NumPy array.
+  return sd.rec(int(duration * fs), samplerate=fs, channels=1)
+while True:  # Loop for continuous prediction
+  # Record audio for 5 seconds
+  data = record_audio()
+  sd.wait()  # Wait for recording to finish
 
-  p = pyaudio.PyAudio()
+  # Preprocess the recorded audio (extract features)
+  X = np.array(extract_features(data))
+  X = scaler.transform(X.reshape(1,-1))
 
-  stream = p.open(format=format,
-                  channels=channels,
-                  rate=rate,
-                  input=True,
-                  frames_per_buffer=chunk)
+  # Predict emotion using the loaded model
+  pred_test = model.predict(np.expand_dims(X, axis=2))
+  y_pred = encoder.inverse_transform(pred_test)
 
-  frames = []
-
-  print("Recording...")
-
-  # Loop for the specified recording duration
-  for _ in range(int(rate / chunk * record_seconds)):
-    data = stream.read(chunk)
-    frames.append(data)
-
-  print("Finished recording.")
-
-  # Stop the stream and close PyAudio
-  stream.stop_stream()
-  stream.close()
-  p.terminate()
-
-  return frames
+  # Print the predicted emotion
+  print("Predicted Emotion:", y_pred[0][0])
+  
+  # Optionally, play an audio cue or display the emotion visually.
