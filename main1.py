@@ -1,4 +1,5 @@
 import sounddevice as sd
+import numpy as np
 def record_audio(duration=5, fs=44100):
   """Records audio from the microphone for a specified duration.
 
