@@ -31,7 +31,7 @@ KAGGLE_INPUT_PATH='/kaggle/input'
 KAGGLE_WORKING_PATH='/kaggle/working'
 KAGGLE_SYMLINK='kaggle'
 
-!umount /kaggle/input/ 2> /dev/null
+#!umount /kaggle/input/ 2> /dev/null
 shutil.rmtree('/kaggle/input', ignore_errors=True)
 os.makedirs(KAGGLE_INPUT_PATH, 0o777, exist_ok=True)
 os.makedirs(KAGGLE_WORKING_PATH, 0o777, exist_ok=True)
@@ -79,10 +79,7 @@ for data_source_mapping in DATA_SOURCE_MAPPING.split(','):
 
 print('Data source import complete.')
 
-!apt-get update
-!apt-get install -y libsndfile1
-!pip install sounddevice
-!pip install PortAudio
+
 
 import pandas as pd
 import numpy as np
@@ -522,5 +519,5 @@ for value, emotion in zip(pred_test_[0], encoder.categories_[0]):
 librosa.display.waveshow(y=data_, sr=sample_rate_)
 Audio(data_, rate=sample_rate_) #for showing and listening audio"""
 
-!pip install sounddevice
+
 import sounddevice as sd
